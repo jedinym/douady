@@ -25,14 +25,14 @@ typedef struct view {
     long double imag;
 } view_t;
 
-bool generate(iter_buffer_t it_buffer, view_t view, int zoom, int resolution, int thread_count);
+bool generate(iter_buffer_t it_buffer, view_t view, double zoom, int resolution, int thread_count);
 
 typedef struct build_opts {
     iter_buffer_t it_buffer;
     view_t view;
     bounds_t *bounds;
     int resolution;
-    int zoom;
+    double zoom;
 } build_opts_t;
 
 int generate_bounds(void *opts);

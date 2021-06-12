@@ -24,11 +24,26 @@ static unsigned get_iterations(long double scaled_x, long double scaled_y, unsig
     return iters;
 }
 
-//TODO:::::::::::::::::::::::::::::::::
-static void create_bound_list(bounds_t *bounds_arr, unsigned chunk_count)
+
+static void create_bound_list(bounds_t *bounds_arr, unsigned chunk_count, unsigned size) {
+    unsigned x_step = size / chunk_count;
+    unsigned rest = size % chunk_count;
+    unsigned x_pos = 0;
+
+    for (unsigned i = 0; i < chunk_count; ++i) {
+        unsigned x_step_end = x_pos + x_step;
+        if (i == chunk_count - 1) {
+            x_step_end += rest;
+        }
+        bounds_t bounds = {{.x = x_pos, .y = 0}, {.x = x_step_end, .y = size}};
+        //printf("[%d, %d] [%d, %d]\n", bounds.ul.x, bounds.ul.y, bounds.lr.x, bounds.lr.y);
+        bounds_arr[i] = bounds;
+        x_pos += x_step;
+    }
+}
 
 static void create_opts(build_opts_t *buff,
-                        int zoom,
+                        double zoom,
                         int resolution,
                         iter_buffer_t it_buf,
                         bounds_t *bound_arr,
@@ -43,9 +58,12 @@ static void create_opts(build_opts_t *buff,
     }
 }
 
-bool generate(iter_buffer_t it_buffer, view_t view, int zoom, int resolution, int thread_count) {
+bool generate(iter_buffer_t it_buffer, view_t view, double zoom, int resolution, int thread_count) {
     thrd_t threads[thread_count];
     build_opts_t opts[thread_count];
+    bounds_t bound_arr[thread_count];
+    create_bound_list(bound_arr, thread_count, it_buffer.x);
+    create_opts(opts, zoom, resolution, it_buffer, bound_arr, thread_count, view);
 
     for (int i = 0; i < thread_count; ++i) {
         if (thrd_create(&threads[i], generate_bounds, &opts[i]) != thrd_success) {
@@ -68,6 +86,7 @@ long double scale(long double start, long double end, unsigned size, unsigned po
 
 int generate_bounds(void *opts) {
     assert(opts != NULL);
+    //puts("THREAD!");
     build_opts_t *b_opts = (build_opts_t*) opts;
 
     long double real_low = b_opts->view.real - 1.0 / b_opts->zoom;
