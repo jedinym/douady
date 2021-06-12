@@ -12,8 +12,12 @@ int main(int argc, char **argv) {
     global_buffer = alloc_buffer(opts.x, opts.y);
     if (global_buffer == NULL)
         return EXIT_FAILURE;
+    iter_buffer_t it_buf = {.buffer = global_buffer, opts.x, opts.y};
+    int zoom = 1;
+    int res = 1;
+    view_t view = {.imag = 0.0, .real = 0.0};
 
-    generate(global_buffer, opts.x, opts.y);
+    generate(it_buf, view, zoom, res, 4);
 
     free_buffer(global_buffer, opts.x);
     return EXIT_SUCCESS;
