@@ -9,7 +9,9 @@ add_executable(douady
         src/douady.c
         src/douady.h
         src/generator.c
-        src/generator.h)
+        src/generator.h
+        src/render.c
+        src/render.h)
 
 target_compile_options(douady PRIVATE -pedantic -Wall -Wextra)
-target_link_options(douady PRIVATE -lm -lpthread)
+target_link_options(douady PRIVATE -lm -lpthread -lpthread -lSDL2)
